@@ -1,26 +1,27 @@
 package main
 
 /*
-    Parallel Sorting Demo
-    Copyright (C) 2020 Robert Sheridan
+Parallel Sorting Demo
+Copyright (C) 2020 Robert Sheridan
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as published
-    by the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published
+by the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
 
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 import (
 	"fmt"
 	"math/rand"
+	"strconv"
 	"time"
 )
 
@@ -43,6 +44,25 @@ func makeRandomizedDataArray(size int32) []int32 {
 func printDataArray(data []int32) {
 	for pos := 0; pos < len(data); pos = pos + 1 {
 		fmt.Println(data[pos])
+	}
+}
+
+func arrayIsSorted(data []int32) bool {
+	for pos := 0; pos < len(data)-1; pos = pos + 1 {
+		if data[pos] > data[pos+1] {
+			fmt.Println("Incorrect order: " + strconv.Itoa(int(data[pos])) + " was positioned before " + strconv.Itoa(int(data[pos+1])))
+			return false
+		}
+	}
+	return true
+}
+
+func reportFinalSortResults(data []int32, name string) {
+	if arrayIsSorted(data) {
+		fmt.Println(name + " correctly sorted.")
+	} else {
+		fmt.Println(name + " not correctly sorted - some elements are out of order")
+		printDataArray(data)
 	}
 }
 
@@ -73,11 +93,15 @@ func main() {
 	go processComparisonChannel(qsr.getComparisonChannel(), ALGORITHM_QUICK_SORT, compareSupervisorChannel)
 	go processSwapChannel(qsr.getSwapChannel(), ALGORITHM_QUICK_SORT, swapSupervisorChannel)
 	// start sorting algorithms
-	go ssr.run()
+	fmt.Println("beginning sorting routines")
 	go bsr.run()
+	go ssr.run()
 	go isr.run()
 	go qsr.run()
 	waitForEverythingComplete(masterSupervisorChannel)
-	fmt.Println("qsr results")
-	printDataArray(qsr.data)
+	reportFinalSortResults(bsr.data, "bubble sort")
+	reportFinalSortResults(ssr.data, "selection sort")
+	reportFinalSortResults(isr.data, "insertion sort")
+	reportFinalSortResults(ssr.data, "quick sort")
+	fmt.Println("program complete")
 }

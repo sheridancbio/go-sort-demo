@@ -1,21 +1,21 @@
 package main
 
 /*
-    Parallel Sorting Demo
-    Copyright (C) 2020 Robert Sheridan
+   Parallel Sorting Demo
+   Copyright (C) 2020 Robert Sheridan
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as published
-    by the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+   This program is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Affero General Public License as published
+   by the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU Affero General Public License for more details.
 
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+   You should have received a copy of the GNU Affero General Public License
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 const ALGORITHM_BUBBLE_SORT int = 1
@@ -27,6 +27,19 @@ const ALGORITHM_HEAP_SORT int = 6
 const ALGORITHM_MERGE_SORT int = 7
 const ALGORITHM_QUICK_SORT int = 8
 const ALGORITHM_RANDOM_SORT int = 9
+
+var algorithmName = []string{
+	"",
+	"bubble sort",
+	"selection sort",
+	"insertion sort",
+	"shell sort",
+	"tree sort",
+	"heap sort",
+	"merge sort",
+	"quick sort",
+	"random sort",
+}
 
 const SORTING_COMPLETE_VALUE int32 = -1
 
