@@ -46,21 +46,21 @@ var sortingCompleteSwapEvent = SwapEvent{
 	knownToBeSortedCount: SORTING_COMPLETE_VALUE,
 }
 
-func startSupervisionOfSort(cm *chan int, sm *chan int, algorithm int) {
-	*cm <- algorithm
-	*sm <- algorithm
+func startSupervisionOfSort(cm chan int, sm chan int, algorithm int) {
+	cm <- algorithm
+	sm <- algorithm
 }
 
-func monitorSupervisorChannel(m *chan int, msc *chan string, completeMessage string) {
+func monitorSupervisorChannel(m chan int, msc chan string, completeMessage string) {
 	var alg int
 	var runningAlgorithms = map[int]bool{}
 	// always begin with starting the first algorithm
-	alg = <-*m
+	alg = <-m
 	if alg > 0 {
 		runningAlgorithms[alg] = true
 	}
 	for len(runningAlgorithms) > 0 {
-		alg = <-*m
+		alg = <-m
 		fmt.Println("supervisor got " + strconv.Itoa(alg) + " " + completeMessage)
 		if alg > 0 {
 			runningAlgorithms[alg] = true
@@ -69,37 +69,37 @@ func monitorSupervisorChannel(m *chan int, msc *chan string, completeMessage str
 		}
 	}
 	// no more algorithms are running
-	*msc <- completeMessage
+	msc <- completeMessage
 }
 
-func processComparisonChannel(c *chan ComparisonEvent, algorithm int, m *chan int) {
+func processComparisonChannel(c chan ComparisonEvent, algorithm int, m chan int) {
 	var ce ComparisonEvent
 	for true {
-		ce = <-*c
+		ce = <-c
 		if ce == sortingCompleteComparisonEvent {
-			*m <- -algorithm // signal that this channel processing is done
+			m <- -algorithm // signal that this channel processing is done
 			return
 		}
 	}
 }
 
-func processSwapChannel(c *chan SwapEvent, algorithm int, m *chan int) {
+func processSwapChannel(c chan SwapEvent, algorithm int, m chan int) {
 	var se SwapEvent
 	for true {
-		se = <-*c
+		se = <-c
 		if se == sortingCompleteSwapEvent {
-			*m <- -algorithm // signal that this channel processing is done
+			m <- -algorithm // signal that this channel processing is done
 			return
 		}
 	}
 }
 
-func waitForEverythingComplete(msc *chan string) {
+func waitForEverythingComplete(msc chan string) {
 	var comparisonProcessingComplete = false
 	var swapProcessingComplete = false
 	var m string
 	for !comparisonProcessingComplete || !swapProcessingComplete {
-		m = <-*msc
+		m = <-msc
 		if m == ALL_COMPARISONS_COMPLETE_MESSAGE {
 			comparisonProcessingComplete = true
 		}

@@ -22,31 +22,30 @@ package main
 type InsertionSortRoutine struct {
 	data                 []int32
 	dataSize             int32
-	swapChannel          *chan SwapEvent
-	comparisonChannel    *chan ComparisonEvent
+	swapChannel          chan SwapEvent
+	comparisonChannel    chan ComparisonEvent
 	knownToBeSortedCount int32
 }
 
 // NewInsertionSortRoutine factory
 func NewInsertionSortRoutine(startSlice []int32) *InsertionSortRoutine {
-	var isr *InsertionSortRoutine
-	isr = new(InsertionSortRoutine)
+	isr := new(InsertionSortRoutine)
 	isr.dataSize = int32(len(startSlice))
 	isr.data = make([]int32, isr.dataSize)
 	_ = copy(isr.data, startSlice)
-	var cc = make(chan ComparisonEvent)
-	isr.comparisonChannel = &cc
-	var sc = make(chan SwapEvent)
-	isr.swapChannel = &sc
+	cc := make(chan ComparisonEvent, 1000)
+	isr.comparisonChannel = cc
+	sc := make(chan SwapEvent, 1000)
+	isr.swapChannel = sc
 	isr.knownToBeSortedCount = 0
 	return isr
 }
 
-func (isr InsertionSortRoutine) getComparisonChannel() *chan ComparisonEvent {
+func (isr InsertionSortRoutine) getComparisonChannel() chan ComparisonEvent {
 	return isr.comparisonChannel
 }
 
-func (isr InsertionSortRoutine) getSwapChannel() *chan SwapEvent {
+func (isr InsertionSortRoutine) getSwapChannel() chan SwapEvent {
 	return isr.swapChannel
 }
 

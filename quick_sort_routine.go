@@ -22,31 +22,30 @@ package main
 type QuickSortRoutine struct {
 	data                 []int32
 	dataSize             int32
-	swapChannel          *chan SwapEvent
-	comparisonChannel    *chan ComparisonEvent
+	swapChannel          chan SwapEvent
+	comparisonChannel    chan ComparisonEvent
 	knownToBeSortedCount int32
 }
 
 // NewQuickSortRoutine factory
 func NewQuickSortRoutine(startSlice []int32) *QuickSortRoutine {
-	var qsr *QuickSortRoutine
-	qsr = new(QuickSortRoutine)
+	qsr := new(QuickSortRoutine)
 	qsr.dataSize = int32(len(startSlice))
 	qsr.data = make([]int32, qsr.dataSize)
 	_ = copy(qsr.data, startSlice)
-	var cc = make(chan ComparisonEvent)
-	qsr.comparisonChannel = &cc
-	var sc = make(chan SwapEvent)
-	qsr.swapChannel = &sc
+	cc := make(chan ComparisonEvent, 1000)
+	qsr.comparisonChannel = cc
+	sc := make(chan SwapEvent, 1000)
+	qsr.swapChannel = sc
 	qsr.knownToBeSortedCount = 0
 	return qsr
 }
 
-func (qsr QuickSortRoutine) getComparisonChannel() *chan ComparisonEvent {
+func (qsr QuickSortRoutine) getComparisonChannel() chan ComparisonEvent {
 	return qsr.comparisonChannel
 }
 
-func (qsr QuickSortRoutine) getSwapChannel() *chan SwapEvent {
+func (qsr QuickSortRoutine) getSwapChannel() chan SwapEvent {
 	return qsr.swapChannel
 }
 
@@ -147,9 +146,9 @@ func (qsr QuickSortRoutine) run() {
 			// one element larger than the pivot exists in rangeToBeSorted
 			// so at the end of partitioning scanFromTop will have moved at least one step past rangeToSort.top
 			swapElementsAt(qsr.data, pivotPos, scanFromTop-1, qsr.knownToBeSortedCount, qsr.swapChannel)
-			qsr.knownToBeSortedCount = qsr.knownToBeSortedCount + 1                                          // pivot element is in its final position
-			rangesToSort = append([]sortRange{sortRange{scanFromTop, rangeToSort.bottom}}, rangesToSort...)  // queue larger sublist
-			rangesToSort = append([]sortRange{sortRange{rangeToSort.top, scanFromTop - 2}}, rangesToSort...) // queue smaller sublist
+			qsr.knownToBeSortedCount = qsr.knownToBeSortedCount + 1                                 // pivot element is in its final position
+			rangesToSort = append([]sortRange{{scanFromTop, rangeToSort.bottom}}, rangesToSort...)  // queue larger sublist
+			rangesToSort = append([]sortRange{{rangeToSort.top, scanFromTop - 2}}, rangesToSort...) // queue smaller sublist
 		}
 	}
 	sortingRoutineComplete(qsr.comparisonChannel, qsr.swapChannel)

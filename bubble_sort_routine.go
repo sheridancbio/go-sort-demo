@@ -22,31 +22,30 @@ package main
 type BubbleSortRoutine struct {
 	data                 []int32
 	dataSize             int32
-	swapChannel          *chan SwapEvent
-	comparisonChannel    *chan ComparisonEvent
+	swapChannel          chan SwapEvent
+	comparisonChannel    chan ComparisonEvent
 	knownToBeSortedCount int32
 }
 
 // NewBubbleSortRoutine factory
 func NewBubbleSortRoutine(startSlice []int32) *BubbleSortRoutine {
-	var bsr *BubbleSortRoutine
-	bsr = new(BubbleSortRoutine)
+	bsr := new(BubbleSortRoutine)
 	bsr.dataSize = int32(len(startSlice))
 	bsr.data = make([]int32, bsr.dataSize)
 	_ = copy(bsr.data, startSlice)
-	var cc = make(chan ComparisonEvent)
-	bsr.comparisonChannel = &cc
-	var sc = make(chan SwapEvent)
-	bsr.swapChannel = &sc
+	cc := make(chan ComparisonEvent, 1000)
+	bsr.comparisonChannel = cc
+	sc := make(chan SwapEvent, 1000)
+	bsr.swapChannel = sc
 	bsr.knownToBeSortedCount = 0
 	return bsr
 }
 
-func (bsr BubbleSortRoutine) getComparisonChannel() *chan ComparisonEvent {
+func (bsr BubbleSortRoutine) getComparisonChannel() chan ComparisonEvent {
 	return bsr.comparisonChannel
 }
 
-func (bsr BubbleSortRoutine) getSwapChannel() *chan SwapEvent {
+func (bsr BubbleSortRoutine) getSwapChannel() chan SwapEvent {
 	return bsr.swapChannel
 }
 

@@ -22,31 +22,30 @@ package main
 type SelectionSortRoutine struct {
 	data                 []int32
 	dataSize             int32
-	swapChannel          *chan SwapEvent
-	comparisonChannel    *chan ComparisonEvent
+	swapChannel          chan SwapEvent
+	comparisonChannel    chan ComparisonEvent
 	knownToBeSortedCount int32
 }
 
 // NewSelectionSortRoutine factory
 func NewSelectionSortRoutine(startSlice []int32) *SelectionSortRoutine {
-	var ssr *SelectionSortRoutine
-	ssr = new(SelectionSortRoutine)
+	ssr := new(SelectionSortRoutine)
 	ssr.dataSize = int32(len(startSlice))
 	ssr.data = make([]int32, ssr.dataSize)
 	_ = copy(ssr.data, startSlice)
-	var cc = make(chan ComparisonEvent)
-	ssr.comparisonChannel = &cc
-	var sc = make(chan SwapEvent)
-	ssr.swapChannel = &sc
+	cc := make(chan ComparisonEvent, 1000)
+	ssr.comparisonChannel = cc
+	sc := make(chan SwapEvent, 1000)
+	ssr.swapChannel = sc
 	ssr.knownToBeSortedCount = 0
 	return ssr
 }
 
-func (ssr SelectionSortRoutine) getComparisonChannel() *chan ComparisonEvent {
+func (ssr SelectionSortRoutine) getComparisonChannel() chan ComparisonEvent {
 	return ssr.comparisonChannel
 }
 
-func (ssr SelectionSortRoutine) getSwapChannel() *chan SwapEvent {
+func (ssr SelectionSortRoutine) getSwapChannel() chan SwapEvent {
 	return ssr.swapChannel
 }
 

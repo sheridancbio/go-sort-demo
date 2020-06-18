@@ -18,20 +18,20 @@ package main
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-func sortingRoutineComplete(cc *chan ComparisonEvent, sc *chan SwapEvent) {
-	*cc <- sortingCompleteComparisonEvent
-	*sc <- sortingCompleteSwapEvent
+func sortingRoutineComplete(cc chan ComparisonEvent, sc chan SwapEvent) {
+	cc <- sortingCompleteComparisonEvent
+	sc <- sortingCompleteSwapEvent
 }
 
-func compareElementsAt(data []int32, i int32, j int32, ktbsc int32, c *chan ComparisonEvent) bool {
+func compareElementsAt(data []int32, i int32, j int32, ktbsc int32, c chan ComparisonEvent) bool {
 	var e ComparisonEvent = ComparisonEvent{[2]int32{i, j}, [2]int32{data[i], data[j]}, data[i] < data[j], ktbsc}
-	*c <- e
+	c <- e
 	return e.firstWasLower
 }
 
-func swapElementsAt(data []int32, i int32, j int32, ktbsc int32, c *chan SwapEvent) {
+func swapElementsAt(data []int32, i int32, j int32, ktbsc int32, c chan SwapEvent) {
 	var e SwapEvent = SwapEvent{[2]int32{i, j}, [2]int32{data[i], data[j]}, ktbsc}
-	*c <- e
+	c <- e
 	var t int32 = data[i]
 	data[i] = data[j]
 	data[j] = t
