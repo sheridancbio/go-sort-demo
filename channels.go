@@ -1,27 +1,24 @@
 package main
 
+import "fmt"
+
 /*
-    Parallel Sorting Demo
-    Copyright (C) 2020 Robert Sheridan
+Parallel Sorting Demo
+Copyright (C) 2020 Robert Sheridan
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as published
-    by the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published
+by the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
 
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-
-import (
-	"fmt"
-	"strconv"
-)
 
 // ComparisonEvent represents an occurrence of comparing two elements
 type ComparisonEvent struct {
@@ -61,7 +58,6 @@ func monitorSupervisorChannel(m chan int, msc chan string, completeMessage strin
 	}
 	for len(runningAlgorithms) > 0 {
 		alg = <-m
-		fmt.Println("supervisor got " + strconv.Itoa(alg) + " " + completeMessage)
 		if alg > 0 {
 			runningAlgorithms[alg] = true
 		} else if alg < 0 {
@@ -73,9 +69,21 @@ func monitorSupervisorChannel(m chan int, msc chan string, completeMessage strin
 }
 
 func processComparisonChannel(c chan ComparisonEvent, algorithm int, m chan int) {
+	nextReportAt := make([]float32, 100)
+	compareCount := make([]int64, 100)
+	const reportPeriodStep = 0.2
 	var ce ComparisonEvent
 	for true {
 		ce = <-c
+		compareCount[algorithm] = compareCount[algorithm] + 1
+		proportionSorted := float32(ce.knownToBeSortedCount) / 1000
+		if ce.knownToBeSortedCount == SORTING_COMPLETE_VALUE {
+			proportionSorted = 1.0
+		}
+		if proportionSorted >= nextReportAt[algorithm] {
+			fmt.Printf("algorithm %s at %.0f%% with %d comparisons\n", algorithmName[algorithm], proportionSorted*100, compareCount[algorithm])
+			nextReportAt[algorithm] = nextReportAt[algorithm] + reportPeriodStep
+		}
 		if ce == sortingCompleteComparisonEvent {
 			m <- -algorithm // signal that this channel processing is done
 			return
@@ -84,9 +92,21 @@ func processComparisonChannel(c chan ComparisonEvent, algorithm int, m chan int)
 }
 
 func processSwapChannel(c chan SwapEvent, algorithm int, m chan int) {
+	nextReportAt := make([]float32, 100)
+	swapCount := make([]int64, 100)
+	const reportPeriodStep = 0.2
 	var se SwapEvent
 	for true {
 		se = <-c
+		swapCount[algorithm] = swapCount[algorithm] + 1
+		proportionSorted := float32(se.knownToBeSortedCount) / 1000
+		if se.knownToBeSortedCount == SORTING_COMPLETE_VALUE {
+			proportionSorted = 1.0
+		}
+		if proportionSorted >= nextReportAt[algorithm] {
+			fmt.Printf("algorithm %s at %.0f%% with %d swaps\n", algorithmName[algorithm], proportionSorted*100, swapCount[algorithm])
+			nextReportAt[algorithm] = nextReportAt[algorithm] + reportPeriodStep
+		}
 		if se == sortingCompleteSwapEvent {
 			m <- -algorithm // signal that this channel processing is done
 			return
