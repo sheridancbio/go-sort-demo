@@ -49,11 +49,6 @@ func (qsr QuickSortRoutine) getSwapChannel() chan SwapEvent {
 	return qsr.swapChannel
 }
 
-type sortRange struct {
-	top    int32
-	bottom int32
-}
-
 func (qsr QuickSortRoutine) selectPivot(top int32) int32 {
 	if compareElementsAt(qsr.data, top, top+1, qsr.knownToBeSortedCount, qsr.comparisonChannel) {
 		// e0 < e1

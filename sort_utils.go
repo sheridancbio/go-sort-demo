@@ -18,6 +18,11 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+type sortRange struct {
+	top    int32
+	bottom int32
+}
+
 func sortingRoutineComplete(cc chan ComparisonEvent, sc chan SwapEvent) {
 	cc <- sortingCompleteComparisonEvent
 	sc <- sortingCompleteSwapEvent
